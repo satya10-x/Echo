@@ -5,7 +5,7 @@ import AppHeader, { Brand } from './AppHeader';
 import useDraftWorkspace from '../hooks/useDraftWorkspace';
 
 const primaryLinks = [
-  { to: '/', label: 'Overview', icon: LayoutGrid },
+  { to: '/workspace', label: 'Overview', icon: LayoutGrid },
   { to: '/studio', label: 'Rewrite Studio', icon: PenLine },
   { to: '/history', label: 'Rewrite history', icon: Bookmark },
 ];
