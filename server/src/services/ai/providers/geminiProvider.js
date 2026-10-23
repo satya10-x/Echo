@@ -5,15 +5,15 @@ import { buildPrompts, outputTokenLimit, responseSchema } from '../prompts/rewri
 export function createGeminiProvider(config) {
   let client;
   return {
-    async generate(input, { signal, timeoutMs, repair }) {
+    async generate(input, { signal, timeoutMs, repair, task }) {
       client ??= new GoogleGenAI({ apiKey: config.apiKey, httpOptions: { timeout: timeoutMs, retryOptions: { attempts: 1 } } });
-      const prompts = buildPrompts(input, repair);
+      const prompts = task ? { ...task.prompts, system: task.prompts.system + (repair ? '\nThe previous response was malformed. Return one complete JSON object with every required field and valid exact evidence.' : '') } : buildPrompts(input, repair);
       const response = await client.models.generateContent({
         model: config.model, contents: prompts.user,
         config: {
           systemInstruction: prompts.system,
-          responseMimeType: 'application/json', responseJsonSchema: responseSchema(input),
-          maxOutputTokens: outputTokenLimit(input.length), abortSignal: signal,
+          responseMimeType: 'application/json', responseJsonSchema: task?.schema || responseSchema(input),
+          maxOutputTokens: (task?.maxTokens || outputTokenLimit(input.length)), abortSignal: signal,
           httpOptions: { timeout: timeoutMs, retryOptions: { attempts: 1 } },
         },
       });

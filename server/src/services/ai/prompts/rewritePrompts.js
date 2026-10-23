@@ -1,9 +1,4 @@
-export const personaInstructions = {
-  executive: 'Start with the most important information. Be concise, structured and decision-oriented. Surface the source’s key ask, status, risks or decision. Avoid filler.',
-  supportive: 'Be constructive, empathetic and specific. Preserve honest criticism. Suggest actionable improvements grounded in the source. Avoid patronizing language and artificial praise.',
-  legal: 'Use precise, neutral wording. Preserve facts, conditions, obligations, prohibitions and qualifications. Never invent legal authority, policy references, approvals or commitments. Never claim this message is legally compliant or legally reviewed. Flag ambiguous or consequential wording separately in warnings when appropriate.',
-  genz: 'Use natural, energetic, conversational language. Avoid forced slang and excessive emojis. Preserve the seriousness of sensitive messages. Clarity matters more than informality.',
-};
+import { getPersona } from '../../personas/registry.js';
 export function responseSchema(input) {
   return {
     type: 'object', additionalProperties: false,
@@ -21,7 +16,7 @@ export function responseSchema(input) {
 }
 export function buildPrompts(input, repair = false) {
   return {
-    system: `You rewrite communication for its intended audience.\n${personaInstructions[input.persona]}\n
+    system: `You rewrite communication for its intended audience.\n${getPersona(input.persona)?.instructions}\nPersona contract (meaning preservation takes priority over length or structure): ${JSON.stringify(getPersona(input.persona))}\n
 Always preserve the underlying intent, names, dates, numbers, identifiers, technical terms and important facts.
 Preserve all negations, conditions, constraints and qualifications. Do not invent deadlines, promises, approvals, commitments or unsupported facts. Do not claim unprovided actions have occurred.
 Preserve the source language unless translation is explicitly requested in the refinement. Accept rough bullet points, fragments and imperfect grammar. Use neutral wording when information is missing.

@@ -28,3 +28,11 @@ export const aiConfig = {
     gemini: { apiKey: process.env.GEMINI_API_KEY?.trim(), model: process.env.GEMINI_MODEL?.trim() },
   },
 };
+
+const minCoverage = Number(process.env.FIDELITY_MIN_COVERAGE ?? 0.9);
+if (!Number.isFinite(minCoverage) || minCoverage < 0 || minCoverage > 1) throw new Error('FIDELITY_MIN_COVERAGE must be between 0 and 1.');
+export const intelligenceConfig = {
+  maxRepairs: integer('INTELLIGENCE_MAX_REPAIRS', 1, 0, 1),
+  timeoutMs: integer('INTELLIGENCE_TIMEOUT_MS', 90000, 5000, 180000),
+  minCoverage: minCoverage,
+};

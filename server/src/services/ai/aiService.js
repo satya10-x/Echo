@@ -8,9 +8,7 @@ import { createGeminiProvider } from './providers/geminiProvider.js';
 export function createAIService(config = aiConfig, factories = { groq: createGroqProvider, gemini: createGeminiProvider }) {
   const clients = {};
   const configured = (name) => Boolean(config.providers[name]?.apiKey && config.providers[name]?.model);
-  return {
-    async rewrite(rawInput, { signal: requestSignal } = {}) {
-      const input = validateRewrite(rawInput);
+  async function run(input, { signal: requestSignal, task } = {}) {
       if (!factories[config.primary] || !configured(config.primary)) {
         throw new AIError('AI_NOT_CONFIGURED', 'AI rewriting is not configured. Set the primary provider’s API key and model in server/.env, then restart the server.', 503);
       }
@@ -33,8 +31,8 @@ export function createAIService(config = aiConfig, factories = { groq: createGro
         try {
           clients[provider] ??= factories[provider](config.providers[provider]);
           const attempt = async (repair) => {
-            const text = await clients[provider].generate(input, { signal, timeoutMs: config.timeoutMs, repair });
-            return parseRewrite(text, input);
+            const text = await clients[provider].generate(input, { signal, timeoutMs: config.timeoutMs, repair, task });
+            return task ? task.parse(text) : parseRewrite(text, input);
           };
           let result;
           try {
@@ -54,7 +52,10 @@ export function createAIService(config = aiConfig, factories = { groq: createGro
           signal.removeEventListener('abort', stopWaiting);
         }
       }
-    },
+  }
+  return {
+    async rewrite(rawInput, options) { return run(validateRewrite(rawInput), options); },
+    async structured(task, options = {}) { return run({}, { ...options, task }); },
   };
 }
 export const aiService = createAIService();

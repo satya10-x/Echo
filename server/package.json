@@ -10,6 +10,7 @@
   "dependencies": {
     "@google/genai": "^2.31.0",
     "cors": "^2.8.5",
+    "diff": "^9.0.0",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "groq-sdk": "^1.6.0",

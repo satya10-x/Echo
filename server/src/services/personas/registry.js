@@ -1,0 +1,27 @@
+const base = { enabled: true, readabilityTarget: null, outputFormat: 'plain_text' };
+export const personaRegistry = [
+  { ...base, id: 'executive', name: 'Executive C-Level', description: 'Concise, structured, decision-oriented communication.', maxWords: 180,
+    instructions: 'Lead with the most important point, key ask, status, risk or decision. Avoid filler. Include a next step only if supported by the source.',
+    structure: ['Main point first', 'Supporting context only where useful', 'Source-supported next step'],
+    requiredElements: [{ id: 'main_point', description: 'The main point appears near the beginning.' }, { id: 'action', description: 'Retain the source’s ask or next step; do not invent one.' }],
+    bannedPatterns: [{ pattern: '\\bcircle back to circle back\\b', reason: 'Avoid repetitive corporate filler.' }],
+    registerTargets: { formality: [0.65, 1], assertiveness: [0.5, 0.9], warmth: [0.2, 0.7], urgency: [0, 1] } },
+  { ...base, id: 'supportive', name: 'Supportive Peer Feedback', description: 'Empathetic, specific, actionable feedback.', maxWords: 250,
+    instructions: 'Be constructive, empathetic and specific. Preserve honest criticism. Keep suggestions grounded in the source. Avoid personal attacks, patronizing language and artificial praise.',
+    structure: ['Specific observation', 'Constructive source-supported suggestion'],
+    requiredElements: [{ id: 'specific_feedback', description: 'Retain concrete observations and suggestions when supplied.' }],
+    bannedPatterns: [{ pattern: '\\b(?:you are|you\x27re) (?:stupid|useless|incompetent)\\b', reason: 'Personal attacks conflict with constructive feedback.' }],
+    registerTargets: { formality: [0.2, 0.8], assertiveness: [0.2, 0.7], warmth: [0.6, 1], urgency: [0, 1] } },
+  { ...base, id: 'legal', name: 'Legal / Compliance', description: 'Precise, neutral language with qualifications intact.', maxWords: 500,
+    instructions: 'Preserve facts, conditions, obligations, prohibitions and qualifications. Never invent legal authority, policy references, approvals or commitments. Never claim legally compliant or legally reviewed status. Flag consequential ambiguity separately.',
+    structure: ['Precise statement', 'Conditions and qualifications retained'],
+    requiredElements: [{ id: 'conditions', description: 'Retain every source-supported condition, prohibition and qualification.' }],
+    bannedPatterns: [{ pattern: '\\b(?:legally compliant|legally reviewed|guaranteed compliance)\\b', reason: 'Do not assert independent legal review or compliance.' }],
+    registerTargets: { formality: [0.7, 1], assertiveness: [0.3, 0.8], warmth: [0, 0.5], urgency: [0, 1] } },
+  { ...base, id: 'genz', name: 'Gen-Z', description: 'Natural, energetic, clear conversational language.', maxWords: 180,
+    instructions: 'Use natural, conversational language without forced slang or excessive emojis. Preserve seriousness and clarity when appropriate.',
+    structure: ['Clear conversational message'], requiredElements: [{ id: 'clarity', description: 'Keep the message clear and audience-appropriate.' }],
+    bannedPatterns: [{ pattern: '(?:[🔥💯🚀✨]){4,}', reason: 'Avoid excessive emoji sequences.' }],
+    registerTargets: { formality: [0, 0.6], assertiveness: [0.2, 0.85], warmth: [0.4, 1], urgency: [0, 1] } },
+];
+export const getPersona = (id) => personaRegistry.find((persona) => persona.id === id && persona.enabled);

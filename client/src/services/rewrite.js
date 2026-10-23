@@ -10,8 +10,20 @@ export function createRewritePayload({ draft, persona, tone, length, purpose, au
 }
 export async function requestRewrite(settings, refinement, signal) {
   const { data } = await api.post('/api/rewrite', createRewritePayload(settings, refinement), {
-    signal, timeout: 130000, // Two provider budgets, capped at 60 seconds each on the server.
+    signal, timeout: 185000, // Bounded server generation, evaluation and repair budget (maximum 180s).
   });
   if (typeof data?.rewrittenText !== 'string' || !data.rewrittenText.trim()) throw new Error('The server returned an incomplete rewrite. Please try again.');
   return data;
+}
+
+export async function requestAnalysis(result, { text = result.text, segmentId } = {}, signal) {
+  const { data } = await api.post('/api/rewrite/analyze', {
+    ...createRewritePayload({ ...result.settings, draft: result.originalText }, result.refinement),
+    rewrittenText: text, ...(segmentId ? { segmentId, revision: result.revision } : {}),
+  }, { signal, timeout: 185000 });
+  return data;
+}
+export async function getPersonaContracts(signal) {
+  const { data } = await api.get('/api/personas', { signal });
+  return data.personas;
 }

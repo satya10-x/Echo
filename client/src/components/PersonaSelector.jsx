@@ -1,5 +1,5 @@
 import { personas } from '../personas';
 import PersonaCard from './PersonaCard';
-export default function PersonaSelector({ value, onChange }) {
-  return <section className="persona-picker" aria-labelledby="persona-heading"><div className="control-heading"><h2 id="persona-heading"><span>01</span> Choose a perspective</h2><span>One persona at a time</span></div><div className="studio-personas" role="group" aria-label="Persona">{personas.map((persona) => <PersonaCard key={persona.id} persona={persona} compact selected={value === persona.id} onSelect={onChange} />)}</div></section>;
+export default function PersonaSelector({ value, onChange, contract, contractError }) {
+  return <section className="persona-picker" aria-labelledby="persona-heading"><div className="control-heading"><h2 id="persona-heading"><span>01</span> Choose a perspective</h2><span>One persona at a time</span></div><div className="studio-personas" role="group" aria-label="Persona">{personas.map((persona) => <PersonaCard key={persona.id} persona={persona} compact selected={value === persona.id} onSelect={onChange} />)}</div><details className="persona-contract-preview"><summary>View this persona’s contract</summary>{contract ? <><p>{contract.description} Target: at most {contract.maxWords} words, with meaning preserved first.</p><ul>{contract.structure.map((item) => <li key={item}>{item}</li>)}</ul><p>Missing owners, dates or approvals are never invented to satisfy a contract.</p></> : <p>{contractError || "Loading contract definitions…"}</p>}</details></section>;
 }

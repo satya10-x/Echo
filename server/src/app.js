@@ -12,7 +12,7 @@ app.use(cors({ origin(origin, callback) {
   if (!origin || env.clientOrigins.includes(origin)) return callback(null, true);
   callback(Object.assign(new Error('Origin is not allowed.'), { status: 403 }));
 } }));
-app.use(express.json({ limit: '100kb' }));
+app.use(express.json({ limit: '256kb' }));
 app.use('/api', apiRouter);
 app.use(notFound);
 app.use(errorHandler);
