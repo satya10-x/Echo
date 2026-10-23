@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowDown, ArrowRight, ArrowUpRight, Check, ChevronDown, Layers3, Menu, ScanText, ShieldCheck, Sparkles, X } from 'lucide-react';
 import { Brand } from '../components/AppHeader';
 import { personas } from '../personas';
+import PenPlayground from '../components/PenPlayground';
 
 const examples = {
   executive: 'Please send your feedback on the proposal by Thursday so we can plan the next step.',
@@ -20,13 +21,16 @@ const faqs = [
 export default function Landing() {
   const [persona, setPersona] = useState('executive');
   const [menuOpen, setMenuOpen] = useState(false);
+  useEffect(() => {
+    if (window.location.hash) document.getElementById(window.location.hash.slice(1))?.scrollIntoView({ block: 'start' });
+  }, []);
   return <div className="landing">
     <a className="skip-link" href="#landing-main">Skip to content</a>
     <header className="lp-header">
       <Brand to="/" className="lp-brand" />
       <button className="lp-menu-toggle" aria-label={menuOpen ? 'Close menu' : 'Open menu'} aria-expanded={menuOpen} aria-controls="landing-nav" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X /> : <Menu />}</button>
       <nav id="landing-nav" className={menuOpen ? 'lp-nav is-open' : 'lp-nav'} aria-label="Landing navigation" onClick={() => setMenuOpen(false)}>
-        <a href="#how-it-works">How it works</a><a href="#voices">The voices</a><a href="#questions">Questions</a><Link className="lp-nav-cta" to="/workspace">Open workspace <ArrowUpRight size={16} /></Link>
+        <a href="#how-it-works">How it works</a><a href="#voices">The voices</a><a href="#pen-demo">Try the pen</a><a href="#questions">Questions</a><Link className="lp-nav-cta" to="/workspace">Open workspace <ArrowUpRight size={16} /></Link>
       </nav>
     </header>
     <main id="landing-main">
@@ -48,6 +52,7 @@ export default function Landing() {
         </div>
       </section>
       <div className="lp-manifesto"><span>LESS SECOND-GUESSING.</span><Sparkles /><span>MORE SAYING WHAT YOU MEAN.</span><Sparkles /><span>THAT’S THE SHIFT.</span></div>
+      <PenPlayground />
       <section className="lp-process lp-section" id="how-it-works" aria-labelledby="lp-process-title">
         <div><span className="lp-section-index">01 / FROM ROUGH TO READY</span><h2 id="lp-process-title">THREE MOVES.<br /><span>YOUR WORDS.</span></h2><p className="lp-section-intro">You bring the thought. VibeShift helps with the delivery. The final call stays yours.</p><Link to="/studio" className="lp-text-link">Let’s write something <ArrowRight size={17} /></Link></div>
         <ol className="lp-steps">{[
