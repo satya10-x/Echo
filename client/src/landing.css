@@ -1,4 +1,4 @@
-.landing { --lp-ink: #171713; --lp-lime: #d6f760; --lp-paper: #fffef9; color: var(--lp-ink); background: #fffef9; }
+.landing { --lp-ink: var(--vibe-ink); --lp-lime: var(--vibe-lime); --lp-paper: var(--vibe-paper); color: var(--lp-ink); background: #fffef9; }
 .landing h1, .landing h2, .landing h3 { color: var(--lp-ink); }
 .landing a:focus-visible, .landing button:focus-visible, .landing summary:focus-visible { outline: 3px solid #6540c0; outline-offset: 5px; }
 .lp-header { display: flex; align-items: center; justify-content: space-between; gap: 30px; padding: 24px max(5vw,24px); border-bottom: 2px solid var(--lp-ink); background: var(--lp-paper); }
