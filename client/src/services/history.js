@@ -31,3 +31,5 @@ export const storeExemplar = (exemplar, name) => authorized('POST', '/api/exempl
 export const removeExemplar = (id) => authorized('DELETE', `/api/exemplars/${id}`);
 
 export function forgetHistorySession() { localStorage.removeItem(key); }
+
+export const hasHistorySession = () => Boolean(localStorage.getItem(key));
