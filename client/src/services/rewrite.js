@@ -1,11 +1,11 @@
 import { api } from './api';
 
-export function createRewritePayload({ draft, persona, tone, length, purpose, audience }, refinement = '') {
+export function createRewritePayload({ draft, persona, tone, length, purpose, audience, styleProfile }, refinement = '') {
   return {
     draft: draft.trim(), persona: persona === 'peer' ? 'supportive' : persona,
     tone: tone.toLowerCase(), length: length.toLowerCase(),
     purpose: purpose === 'Give feedback' ? 'feedback' : purpose.toLowerCase(),
-    audience: audience.trim(), refinement: refinement.trim(),
+    audience: audience.trim(), refinement: refinement.trim(), ...(styleProfile ? { styleProfile } : {}),
   };
 }
 export async function requestRewrite(settings, refinement, signal) {

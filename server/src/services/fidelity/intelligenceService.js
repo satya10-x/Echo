@@ -16,13 +16,13 @@ function repairReasons(analysis) {
     ...analysis.contractValidation.checks.filter((check) => check.repairable).map((check) => `Persona contract: ${check.explanation}`),
   ].slice(0, 20);
 }
-export async function rewriteWithIntelligence(rawInput, { signal: requestSignal, service = aiService, config = intelligenceConfig } = {}) {
+export async function rewriteWithIntelligence(rawInput, { signal: requestSignal, service = aiService, config = intelligenceConfig, generationTask } = {}) {
   const input = validateRewrite(rawInput);
   const controller = new AbortController();
   const signal = requestSignal ? AbortSignal.any([requestSignal, controller.signal]) : controller.signal;
   const timer = setTimeout(() => controller.abort(new Error('Intelligence time budget reached')), config.timeoutMs);
   try {
-    let result = await service.rewrite(input, { signal });
+    let result = generationTask ? await service.structured(generationTask, { signal }) : await service.rewrite(input, { signal });
     let analysis = await analyzePair(input, result.rewrittenText, { signal, service });
     const violations = repairReasons(analysis);
     const repair = { attempted: false, attempts: 0, limit: config.maxRepairs, reasons: violations, previousText: null, outcome: 'not_needed' };

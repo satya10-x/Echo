@@ -56,9 +56,18 @@ export default function useRewrite() {
       setStatus('success');
     }, 'analyzing');
   }
+  function choose(candidate, settings) {
+    if (active.current) return;
+    history.current = [];
+    setCanUndo(false); setAcknowledged(false); setError(''); setStatus('success');
+    setResult({ ...candidate, text: candidate.rewrittenText, originalText: candidate.originalText || settings.draft.trim(), settings: { ...settings }, refinement: settings.refinement || '', generatedAt: Date.now() });
+  }
+  function markSaved(record, revision) {
+    setResult((current) => current?.revision === revision ? { ...current, historyRecordId: record.id, historyRecordRevision: record.revision, historyTitle: record.title } : current);
+  }
   function undo() {
     if (active.current || !history.current.length) return;
     setResult(history.current.pop()); setCanUndo(history.current.length > 0); setAcknowledged(false); setStatus('success'); setError('');
   }
-  return { result, status, error, generate, reset, reanalyze, undo, canUndo, acknowledged, acknowledge: () => setAcknowledged(true) };
+  return { result, status, error, generate, reset, reanalyze, undo, choose, markSaved, canUndo, acknowledged, acknowledge: () => setAcknowledged(true) };
 }

@@ -1,6 +1,6 @@
 # VibeShift AI
 
-An audience-focused communication rewriting workspace with real Groq generation and optional Gemini fallback. Rewrite, regenerate, refine, copy, and restore original drafts in the Studio. Drafts, settings, and AI results stay in React memory across navigation; reloading or closing the tab clears them. No saved history is created. The intelligence workflow adds separate semantic evaluation, exact-value and commitment checks, persona contracts, an actual word diff, and selective phrase restoration. Findings are review signals rather than guarantees.
+An audience-focused communication rewriting workspace with real Groq generation and optional Gemini fallback. Rewrite, regenerate, refine, copy, and restore original drafts in the Studio. Drafts, settings, and AI results stay in React memory across navigation; reloading or closing the tab clears them. History is stored only when you explicitly save an accepted rewrite; anonymous browser access is described below. The intelligence workflow adds separate semantic evaluation, exact-value and commitment checks, persona contracts, an actual word diff, and selective phrase restoration. Findings are review signals rather than guarantees.
 ## Start on macOS
 
 Requires Node.js **22.12+** and npm. From this directory:
@@ -15,7 +15,7 @@ npm run dev
 
 Open http://localhost:5173. The API runs at http://localhost:5000.
 
-Start a local MongoDB instance or set `MONGODB_URI` in `server/.env` to your MongoDB connection string. The server continues serving the API if MongoDB is unavailable and reports `degraded` health with the actual database status. The app starts without AI credentials, but rewriting requires a configured provider. MongoDB is not required for rewriting. Cloudinary is unused.
+Start a local MongoDB instance or set `MONGODB_URI` in `server/.env` to your MongoDB connection string. The server continues serving the API if MongoDB is unavailable and reports `degraded` health with the actual database status. The app starts without AI credentials, but rewriting requires a configured provider. MongoDB is not required for rewriting. Cloudinary is optional for explicitly stored private text exemplars.
 
 ## Commands
 
@@ -51,7 +51,7 @@ SDK references: [Groq JavaScript SDK](https://github.com/groq/groq-typescript), 
 - `GET /api` — application information and available endpoint.
 - `GET /api/health` — `status`, ISO `timestamp`, and `database: { status, connected }`. HTTP 200 confirms the API is alive; inspect the body for database readiness.
 
-`client/src` contains React pages and reusable interface components. `server/src` separates environment/database configuration, routes, and error handling. Failed initial database connections require a server restart after configuration is fixed. AI adapters, prompts, validation, and the rewrite controller are separate modules. No authentication or persistence endpoints are implemented yet. Drafts and raw provider errors are not logged by the application.
+`client/src` contains React pages and reusable interface components. `server/src` separates environment/database configuration, routes, and error handling. Failed initial database connections require a server restart after configuration is fixed. AI adapters, prompts, validation, and the rewrite controller are separate modules. No account authentication or team management is implemented; saved history uses scoped anonymous access tokens. Drafts and raw provider errors are not logged by the application.
 
 ## Intelligence checks
 
@@ -67,7 +67,27 @@ Persona contracts come from the backend registry and drive generation and valida
 
 Restoring a phrase uses exact offsets and a hash of the complete source/output revision, never a global text replacement. Only the rewrite changes. Checks run again before the new revision is displayed. Manual rewrite edits support reanalysis and up to ten undo steps; full-source restore to the editor remains available. Independent analysis has no database dependency.
 
-Focused verification: `node --test server/src/services/ai/aiService.test.js server/src/services/fidelity/intelligence.test.js`.
+Focused verification: `node --test server/src/services/ai/aiService.test.js server/src/services/fidelity/intelligence.test.js server/src/services/copilot/copilot.test.js`.
+
+## Communication copilot
+
+The Studio’s secondary panel offers three distinct variants, simulated audience interpretations, and writing-style matching. Variants use one structured batch plus at most three evaluations (two concurrently); candidates that are too similar are rejected rather than presented as distinct. Ranking prioritizes critical/high findings, semantic concerns, unavailable evaluation and contract concerns before a lexical-variety tiebreaker. Use This Version updates the active rewrite with that candidate’s actual checks. Generation and analysis remain bounded by the existing intelligence time budget.
+
+Misread results analyze the selected rewrite and are explicitly simulated, not predictions or legal advice. Evidence phrases must occur in that exact version. Mitigation produces a candidate through the existing intelligence workflow; it never replaces the active result until accepted. Style extraction separates numeric/categorical patterns from exemplar content. Applying style sends only the profile and original draft, so exemplar passages are not reused in generation. English hedging/greeting detection is limited and qualitative classification may be unavailable.
+
+New routes: `POST /api/copilot/variants`, `/misread`, `/mitigate`, `/style`, and `/style/file`. The file endpoint parses UTF-8 `.txt` only (16 KB, 4,000 characters), without sending it to AI or storage. Extract Style is a separate explicit action.
+
+## Anonymous history and optional private storage
+
+MongoDB must be connected for `/api/session`, `/api/history`, and `/api/exemplars`. The server issues a random 256-bit bearer token; only its SHA-256 hash is stored. The browser retains the capability in local storage. No client-supplied user ID controls authorization. Every record query and mutation includes the server-resolved session owner. Treat the browser token like a password; losing browser storage loses access but does not delete records. This is a single-browser anonymous MVP, not an account or a recovery mechanism. Delete confidential history/private assets before clearing browser storage. Anonymous sessions do not automatically expire in this MVP.
+
+History supports explicit save, recent search (30 records), open, rename, delete and up to ten retained accepted versions per draft. PATCH requires the latest record revision to avoid lost updates. Up to 100 drafts per anonymous session are supported. Saved records whitelist original text, settings, accepted output, provider/model labels and compact deterministic findings; API credentials and full intermediate analyses are excluded. Opening a saved version marks semantic/tone evaluation unavailable until Recheck is explicitly run.
+
+`POST /api/session` creates the anonymous capability. `POST/GET /api/history`, `GET/PATCH/DELETE /api/history/:id` implement owner-scoped history. `GET /api/history/:id?version=N` opens a retained version. No intermediate AI request is auto-saved.
+
+Cloudinary is optional. Set `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY` and `CLOUDINARY_API_SECRET` in the backend environment to enable explicit private exemplar storage. The official SDK uploads only validated text as raw assets with `type: authenticated`, never public delivery. Asset identifiers are generated server-side, ownership metadata stays in MongoDB, and no delivery URL is exposed. `/api/exemplars` supports list/upload and `DELETE /api/exemplars/:id` destroys the owner’s Cloudinary asset. The feature does not need image uploads. No storage credentials are required for normal rewriting, style extraction or history. See [Cloudinary uploads](https://cloudinary.com/documentation/node_image_and_video_upload) and [authenticated media access](https://cloudinary.com/documentation/control_access_to_media).
+
+MongoDB and Cloudinary failures produce unavailable/error responses; nothing is presented as saved or uploaded unless the service confirms success. Private assets remain until explicitly deleted; no background cleanup or deployment changes are introduced in this phase.
 
 ## Repository governance
 

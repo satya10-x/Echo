@@ -1,3 +1,4 @@
+import { validateStyleProfile } from './styleProfile.js';
 import { AIError } from '../services/ai/errors.js';
 export const choices = {
   persona: ['executive', 'supportive', 'legal', 'genz'],
@@ -22,5 +23,6 @@ export function validateRewrite(body) {
     if (typeof value !== 'string' || value.length > max) invalid(`${field === 'audience' ? 'Audience' : 'Refinement'} must be text with no more than ${max} characters.`);
     result[field] = value.trim();
   }
+  if (body.styleProfile !== undefined) result.styleProfile = validateStyleProfile(body.styleProfile);
   return result;
 }

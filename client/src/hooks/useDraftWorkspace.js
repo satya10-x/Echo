@@ -22,11 +22,21 @@ export default function useDraftWorkspace() {
     setSettings({ ...initial(), draft: sample.text, persona: sample.persona });
     return true;
   };
+  const loadSaved = (saved) => {
+    if (!confirmReplace()) return false;
+    const input = saved.version.input;
+    const capitalize = (value) => value[0].toUpperCase() + value.slice(1);
+    const restoredSettings = { draft: input.draft, persona: input.persona, tone: capitalize(input.tone), length: capitalize(input.length), purpose: input.purpose === 'feedback' ? 'Give feedback' : capitalize(input.purpose), audience: input.audience || '', ...(input.styleProfile ? { styleProfile: input.styleProfile } : {}) };
+    rewrite.reset();
+    setSettings(restoredSettings);
+    rewrite.choose({ ...saved.result, historyRecordId: saved.id, historyRecordRevision: saved.revision, historyTitle: saved.title }, restoredSettings);
+    return true;
+  };
   const clearDraft = () => {
     if (!settings.draft || !window.confirm('Clear this draft? This cannot be undone.')) return false;
     rewrite.reset();
     update('draft', '');
     return true;
   };
-  return { settings, update, newDraft, loadSample, clearDraft, rewrite };
+  return { settings, update, newDraft, loadSample, loadSaved, clearDraft, rewrite };
 }

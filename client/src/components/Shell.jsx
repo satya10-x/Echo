@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { NavLink, Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { ArrowUpRight, ChevronRight, LayoutGrid, PenLine, Plus, Sparkles } from 'lucide-react';
+import { ArrowUpRight, Bookmark, ChevronRight, LayoutGrid, PenLine, Plus, Sparkles } from 'lucide-react';
 import AppHeader, { Brand } from './AppHeader';
 import useDraftWorkspace from '../hooks/useDraftWorkspace';
 
@@ -24,9 +24,9 @@ export default function Shell() {
       <Brand className="desktop-brand" />
       <button onClick={startDraft} className="button primary sidebar-new"><Plus size={17} /> New draft</button>
       <p className="nav-label">YOUR SPACE</p>
-      <nav aria-label="Main navigation"><NavLink to="/" end><LayoutGrid size={18} /> Workspace <ChevronRight className="nav-chevron" size={15} /></NavLink><NavLink to="/studio"><PenLine size={18} /> Rewrite Studio <ChevronRight className="nav-chevron" size={15} /></NavLink></nav>
-      <div className="sidebar-bottom"><div className="small-note"><span className="mini-spark"><Sparkles size={18} /></span><strong>One message.<br />Every audience.<br />Perfectly understood.</strong><p>Start with what you mean. Shape how it lands.</p><Link to="/studio">Open your studio <ArrowUpRight size={14} /></Link></div><div className="foundation-status"><span className="status-dot" /><span>AI writing workspace</span><span className="version">v0.3</span></div></div>
+      <nav aria-label="Main navigation"><NavLink to="/" end><LayoutGrid size={18} /> Workspace <ChevronRight className="nav-chevron" size={15} /></NavLink><NavLink to="/studio"><PenLine size={18} /> Rewrite Studio <ChevronRight className="nav-chevron" size={15} /></NavLink><NavLink to="/history"><Bookmark size={18} /> History <ChevronRight className="nav-chevron" size={15} /></NavLink></nav>
+      <div className="sidebar-bottom"><div className="small-note"><span className="mini-spark"><Sparkles size={18} /></span><strong>One message.<br />Every audience.<br />Perfectly understood.</strong><p>Start with what you mean. Shape how it lands.</p><Link to="/studio">Open your studio <ArrowUpRight size={14} /></Link></div><div className="foundation-status"><span className="status-dot" /><span>AI writing workspace</span><span className="version">v0.5</span></div></div>
     </aside>
-    <div className="main-shell"><AppHeader open={open} onToggle={() => setOpen(!open)} onNewDraft={startDraft} /><main id="main-content" key={location.pathname} tabIndex={-1}><Outlet context={{ ...workspace, startDraft }} /></main><footer className="app-footer"><span>One message. Every audience. Perfectly understood.</span><span>Drafts stay in this tab · Not saved <Sparkles size={12} /></span></footer></div>
+    <div className="main-shell"><AppHeader open={open} onToggle={() => setOpen(!open)} onNewDraft={startDraft} /><main id="main-content" key={location.pathname} tabIndex={-1}><Outlet context={{ ...workspace, startDraft }} /></main><footer className="app-footer"><span>One message. Every audience. Perfectly understood.</span><span>Save only the versions you choose <Sparkles size={12} /></span></footer></div>
   </div>;
 }

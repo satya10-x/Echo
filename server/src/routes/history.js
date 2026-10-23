@@ -1,0 +1,17 @@
+import { Router } from 'express';
+import { createRewriteRateLimit } from '../middleware/rewriteRateLimit.js';
+import { requireDatabase, requireSession, issueSession } from '../middleware/anonymousSession.js';
+import { listHistory, createHistory, getHistory, updateHistory, deleteHistory } from '../controllers/history.js';
+import { listExemplars, uploadExemplar, deleteExemplar } from '../controllers/exemplars.js';
+export const historyRouter = Router();
+historyRouter.use(requireDatabase);
+historyRouter.post('/session', createRewriteRateLimit({ max: 20, windowMs: 60000 }), issueSession);
+historyRouter.use(createRewriteRateLimit({ max: 120, windowMs: 60000 }), requireSession);
+historyRouter.get('/history', listHistory);
+historyRouter.post('/history', createHistory);
+historyRouter.get('/history/:id', getHistory);
+historyRouter.patch('/history/:id', updateHistory);
+historyRouter.delete('/history/:id', deleteHistory);
+historyRouter.get('/exemplars', listExemplars);
+historyRouter.post('/exemplars', createRewriteRateLimit({ max: 5, windowMs: 60000 }), uploadExemplar);
+historyRouter.delete('/exemplars/:id', deleteExemplar);

@@ -1,4 +1,6 @@
 import { Router } from 'express';
+import { copilotRouter } from './copilot.js';
+import { historyRouter } from './history.js';
 import { rewrite, analyze } from '../controllers/rewrite.js';
 import { createRewriteRateLimit } from '../middleware/rewriteRateLimit.js';
 import { personaRegistry } from '../services/personas/registry.js';
@@ -10,7 +12,7 @@ apiRouter.post('/rewrite', rewriteLimit, rewrite);
 apiRouter.post('/rewrite/analyze', rewriteLimit, analyze);
 apiRouter.get('/personas', (_req, res) => res.json({ personas: personaRegistry.filter((persona) => persona.enabled) }));
 apiRouter.get('/', (_req, res) => {
-  res.json({ name: 'VibeShift AI API', version: '0.1.0', phase: 'intelligence', endpoints: { health: '/api/health', rewrite: '/api/rewrite', analyze: '/api/rewrite/analyze', personas: '/api/personas' } });
+  res.json({ name: 'VibeShift AI API', version: '0.1.0', phase: 'communication-copilot', endpoints: { health: '/api/health', rewrite: '/api/rewrite', analyze: '/api/rewrite/analyze', personas: '/api/personas' } });
 });
 apiRouter.get('/health', (_req, res) => {
   const status = databaseStatus();
@@ -19,4 +21,10 @@ apiRouter.get('/health', (_req, res) => {
     timestamp: new Date().toISOString(),
     database: { status, connected: status === 'connected' },
   });
+});
+
+apiRouter.use('/copilot', copilotRouter);
+apiRouter.use((req, res, next) => {
+  if (/^\/(?:session|history|exemplars)(?:\/|$)/.test(req.path)) return historyRouter(req, res, next);
+  next();
 });

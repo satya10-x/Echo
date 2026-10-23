@@ -7,10 +7,11 @@ import { toneAnalysis } from './toneAnalysis.js';
 import { commitmentLedger, severityRank } from '../commitments/commitmentService.js';
 import { validateContract } from '../personas/contractValidation.js';
 
-export async function analyzePair(input, rewrittenText, { signal, service = aiService } = {}) {
+export async function analyzePair(input, rewrittenText, { signal, service = aiService, evaluate = true } = {}) {
   const diff = createDiff(input.draft, rewrittenText);
   let evaluation = null, evaluationProvider = null;
   try {
+    if (!evaluate) throw new Error('Semantic analysis not requested');
     const { metadata, ...result } = await service.structured(evaluationTask(input, rewrittenText, diff), { signal });
     evaluation = result; evaluationProvider = metadata;
   } catch {

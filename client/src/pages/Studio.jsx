@@ -9,6 +9,8 @@ import DeliveryControls from '../components/DeliveryControls';
 import RewriteOutput from '../components/OutputPanel';
 import BeforeAfterComparison from '../components/BeforeAfterComparison';
 import IntelligencePanels, { RewriteEditor } from '../components/IntelligencePanels';
+import CopilotPanel from '../components/CopilotPanel';
+import SaveRewrite from '../components/SaveRewrite';
 import { getPersonaContracts } from '../services/rewrite';
 
 export default function Studio() {
@@ -22,12 +24,14 @@ export default function Studio() {
   const handledLocation = useRef(null);
   const [contracts, setContracts] = useState([]);
   const [contractError, setContractError] = useState('');
+  const [copilotBusy, setCopilotBusy] = useState(false);
   useEffect(() => {
     const controller = new AbortController();
     getPersonaContracts(controller.signal).then(setContracts).catch(() => { if (!controller.signal.aborted) setContractError('Contract definitions unavailable. The server will still enforce the selected persona.'); });
     return () => controller.abort();
   }, []);
-  const busy = ['loading', 'analyzing'].includes(rewrite.status);
+  const rewriteBusy = ['loading', 'analyzing'].includes(rewrite.status);
+  const busy = rewriteBusy || copilotBusy;
   useEffect(() => {
     if (handledLocation.current === location.key) return;
     handledLocation.current = location.key;
@@ -47,7 +51,7 @@ export default function Studio() {
     if (refine && !refinement.trim()) return;
     setValidation(''); setNotice('');
     // Regenerate/refine the same source with current controls; never rewrite output as if it were the source.
-    rewrite.generate({ ...settings, draft: source }, refine ? refinement : '');
+    rewrite.generate({ ...settings, draft: source, ...((regenerate || refine) && rewrite.result?.settings.styleProfile ? { styleProfile: rewrite.result.settings.styleProfile } : {}) }, refine ? refinement : '');
   }
   const change = (field, value) => { update(field, value); setNotice(''); if (field === 'draft') setValidation(''); };
   const currentPersona = personas.find((persona) => persona.id === settings.persona);
@@ -62,7 +66,9 @@ export default function Studio() {
       <DeliveryControls settings={settings} onChange={change} />
       <div className="generate-section"><button type="submit" disabled={busy} className="button primary generate-button" aria-describedby="generation-note">{busy ? <LoaderCircle size={17} className="loading-spinner" /> : <Sparkles size={17} />}{busy ? 'Writing & checking…' : 'Rewrite message'}<span>{currentPersona?.short}</span></button><p id="generation-note"><Info size={13} /> Includes a separate AI evaluation and at most one targeted repair. Review all findings before sharing.</p>{notice && <p className="rewrite-notice" role="status">{notice}</p>}</div>
     </form><div className="studio-output-column"><RewriteOutput result={rewrite.result} status={rewrite.status} error={rewrite.error} personaName={outputPersona?.name} stale={stale} acknowledged={rewrite.acknowledged} onAcknowledge={rewrite.acknowledge} onRefine={() => document.getElementById('refinement')?.focus()} onRegenerate={() => generate({ regenerate: true })} onRestore={(original) => { update('draft', original); setValidation(''); setNotice('Original source restored to the editor. Your rewritten version is still available.'); }} />
-    {rewrite.result && <form className="refinement-panel" onSubmit={(event) => { event.preventDefault(); generate({ refine: true }); }}><label htmlFor="refinement">Give this version a little direction</label><p>Refine the same original draft with your current settings.</p><textarea id="refinement" value={refinement} onChange={(event) => setRefinement(event.target.value)} maxLength={500} rows={2} placeholder="e.g. Make the request more diplomatic, and keep it under 50 words." /><div><span>{refinement.length} / 500</span><button className="button secondary" type="submit" disabled={busy || !refinement.trim()}><Sparkles size={14} /> Refine rewrite</button></div></form>}{rewrite.result && <RewriteEditor result={rewrite.result} busy={busy} canUndo={rewrite.canUndo} onApply={(text) => rewrite.reanalyze({ text })} onUndo={rewrite.undo} />}</div></div>
+    {rewrite.result && <form className="refinement-panel" onSubmit={(event) => { event.preventDefault(); generate({ refine: true }); }}><label htmlFor="refinement">Give this version a little direction</label><p>Refine the same original draft with your current settings.</p><textarea id="refinement" value={refinement} onChange={(event) => setRefinement(event.target.value)} maxLength={500} rows={2} placeholder="e.g. Make the request more diplomatic, and keep it under 50 words." /><div><span>{refinement.length} / 500</span><button className="button secondary" type="submit" disabled={busy || !refinement.trim()}><Sparkles size={14} /> Refine rewrite</button></div></form>}{rewrite.result && <><button className="text-button recheck-button" disabled={busy} onClick={() => rewrite.reanalyze()}>Recheck current rewrite</button><RewriteEditor result={rewrite.result} busy={busy} canUndo={rewrite.canUndo} onApply={(text) => rewrite.reanalyze({ text })} onUndo={rewrite.undo} /></>}</div></div>
+    {rewrite.result && <SaveRewrite result={rewrite.result} busy={busy} acknowledged={rewrite.acknowledged} onSaved={rewrite.markSaved} />}
+    <CopilotPanel settings={settings} result={rewrite.result} mainBusy={rewriteBusy} onBusyChange={setCopilotBusy} onUseCandidate={rewrite.choose} />
     <BeforeAfterComparison originalText={rewrite.result?.originalText || settings.draft} rewrittenText={rewrite.result?.text} segments={rewrite.result?.diff} diffStatus={rewrite.result?.diffStatus} busy={busy} onRestore={(segmentId) => rewrite.reanalyze({ segmentId })} />
     <IntelligencePanels result={rewrite.result} />
   </div>;

@@ -5,7 +5,7 @@ import { validateAnalysis } from '../validation/analyze.js';
 import { intelligenceConfig } from '../config/env.js';
 import { AIError } from '../services/ai/errors.js';
 
-function handler(operation) {
+export function handler(operation) {
   return async (req, res, next) => {
     const controller = new AbortController();
     const cancel = () => { if (!res.writableEnded) controller.abort(new Error('Client disconnected')); };

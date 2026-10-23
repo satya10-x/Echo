@@ -1,0 +1,11 @@
+import mongoose from 'mongoose';
+const { Schema } = mongoose;
+const sessionSchema = new Schema({ tokenHash: { type: String, required: true, unique: true, select: false } }, { timestamps: true });
+const inputSchema = new Schema({ draft: String, persona: String, tone: String, length: String, purpose: String, audience: String, refinement: String, styleProfile: Schema.Types.Mixed }, { _id: false });
+const versionSchema = new Schema({ number: Number, input: inputSchema, rewrittenText: String, warnings: [String], metadata: { provider: String, model: String }, analysisSummary: { commitmentStatus: String, importantFindings: Number, semanticStatus: String }, createdAt: { type: Date, default: Date.now } }, { _id: false });
+const historySchema = new Schema({ owner: { type: Schema.Types.ObjectId, required: true, index: true }, title: { type: String, required: true, maxlength: 120 }, versions: [versionSchema], nextVersion: { type: Number, default: 2 } }, { timestamps: true, optimisticConcurrency: true });
+historySchema.index({ owner: 1, updatedAt: -1 });
+const assetSchema = new Schema({ owner: { type: Schema.Types.ObjectId, required: true, index: true }, publicId: { type: String, required: true, select: false }, name: String, bytes: Number }, { timestamps: true });
+export const AnonymousSession = mongoose.model('AnonymousSession', sessionSchema);
+export const RewriteHistory = mongoose.model('RewriteHistory', historySchema);
+export const ExemplarAsset = mongoose.model('ExemplarAsset', assetSchema);
