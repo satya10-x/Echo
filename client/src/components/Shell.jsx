@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowUpRight, Bookmark, ChevronRight, Layers3, LayoutGrid, MessageSquareText, PenLine, Plus, ScanText, Sparkles } from 'lucide-react';
+import { ArrowUpRight, AudioLines, Bookmark, ChevronRight, Layers3, LayoutGrid, MessageSquareText, PenLine, Plus, ScanText, Sparkles } from 'lucide-react';
 import AppHeader, { Brand } from './AppHeader';
 import useDraftWorkspace from '../hooks/useDraftWorkspace';
 
@@ -10,6 +10,7 @@ const primaryLinks = [
   { to: '/history', label: 'Rewrite history', icon: Bookmark },
 ];
 const toolLinks = [
+  { to: '/voice', label: 'Text to voice', icon: AudioLines },
   { to: '/studio?tool=variants', tool: 'variants', label: 'Rewrite variants', icon: Layers3 },
   { to: '/studio?tool=misread', tool: 'misread', label: 'Audience simulator', icon: MessageSquareText },
   { to: '/studio?tool=style', tool: 'style', label: 'Writing style', icon: ScanText },

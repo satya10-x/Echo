@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react';
 import { Copy, Info, RotateCcw, ShieldCheck, Sparkles, Undo2 } from 'lucide-react';
 import { countWords } from '../hooks/useDraftWorkspace';
 import { EmptyState, LoadingState } from './FeedbackState';
+import VoicePlayer from './VoicePlayer';
 import { ReviewBanner, needsReview } from './IntelligencePanels';
 
-export default function RewriteOutput({ result = null, status = 'idle', error = '', personaName, stale = false, acknowledged = false, onAcknowledge, onRefine, onRegenerate, onRestore }) {
+export default function RewriteOutput({ result = null, status = 'idle', error = '', personaName, stale = false, acknowledged = false, onAcknowledge, onRefine, onRegenerate, onRestore, speechEnabled = true }) {
   const [copyStatus, setCopyStatus] = useState('');
   const hasOutput = Boolean(result?.text);
   const busy = ['loading', 'analyzing'].includes(status);
@@ -27,6 +28,7 @@ export default function RewriteOutput({ result = null, status = 'idle', error = 
     <div className="output-actions"><button className="button secondary" disabled={!hasOutput || busy || !onRegenerate} onClick={onRegenerate} title="Generate a fresh version of the same original draft with current settings"><RotateCcw size={14} /> Regenerate</button><button className="button secondary" disabled={!hasOutput || busy || !result.originalText || !onRestore} onClick={() => onRestore(result.originalText)} title="Restore the source draft used for this rewrite"><Undo2 size={14} /> Restore original</button><button className="button secondary" disabled={!hasOutput || busy || (reviewRequired && !acknowledged)} title={reviewRequired && !acknowledged ? 'Acknowledge the review warnings to enable copying' : 'Copy the current rewrite'} onClick={copy}><Copy size={14} /> Copy</button></div>
     <p className="copy-status" role="status">{copyStatus}</p>
     {!hasOutput && <p className="output-availability">Copy, regenerate and restore become available after a successful rewrite.</p>}
+    {hasOutput && <VoicePlayer text={result.text} disabled={busy || !speechEnabled || (reviewRequired && !acknowledged)} notice={reviewRequired && !acknowledged ? 'Acknowledge the review warnings above before listening to this rewrite.' : ''} />}
     <div className="output-insights" hidden={!hasOutput}><div><span className="insight-icon"><Info size={17} /></span><div><h3>What changed and why?</h3>{hasOutput ? <><p>{result.summary}</p><ul className="change-reasons">{result.changeReasons?.map((reason, index) => <li key={index}><strong>{reason.category}</strong> — {reason.explanation}</li>)}</ul><p className="explanation-note">Generation explanation · See independent findings below</p></> : <p>Explanations will appear alongside real rewrites.</p>}</div></div>
     {result?.warnings?.length > 0 && <div className="model-warnings"><span className="insight-icon"><Info size={17} /></span><div><h3>Worth reviewing</h3><ul>{result.warnings.map((warning, index) => <li key={index}>{warning}</li>)}</ul><p>AI suggestions, not verified findings or legal review.</p></div></div>}
     <div><span className="insight-icon"><ShieldCheck size={17} /></span><div><h3>Fidelity & commitment checks</h3><p>{result?.fidelity ? `Separate semantic evaluation: ${result.fidelity.evaluationStatus}. Inspect the full findings below.` : 'A separate evaluation, exact-value checks and persona validation run after generation.'}</p></div></div></div>

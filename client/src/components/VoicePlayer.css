@@ -1,0 +1,39 @@
+.voice-composer { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 25px; align-items: stretch; }
+.voice-input,.voice-player { min-width: 0; padding: 25px; background: var(--vibe-paper); color: var(--vibe-ink); border: 2px solid var(--vibe-ink); box-shadow: 5px 5px 0 var(--vibe-ink); }
+.voice-input-heading { display: flex; justify-content: space-between; align-items: center; gap: 15px; font: 700 11px ui-monospace,monospace; }
+.voice-input-heading>span { color: #626258; font-size: 10px; white-space: nowrap; }
+.voice-input textarea { display: block; width: 100%; min-height: 250px; border: 1.5px solid var(--vibe-ink); border-radius: 0; margin-top: 17px; padding: 16px; background: #fff; color: var(--vibe-ink); font-size: 15px; line-height: 1.9; resize: vertical; }
+.voice-input>p { font-size: 12px; color: #626258; line-height: 1.85; margin-top: 14px; }
+.voice-player { display: flex; flex-direction: column; gap: 20px; }
+.voice-player-heading { display: flex; align-items: center; gap: 12px; }
+.voice-speaker { display: grid; place-items: center; width: 43px; height: 43px; background: var(--vibe-lime); border: 1.5px solid var(--vibe-ink); box-shadow: 2px 2px 0 var(--vibe-ink); flex-shrink: 0; }
+.voice-player-heading h3,.app-shell .voice-player-heading h3 { color: var(--vibe-ink); font: 800 24px/1.1 Impact,'Arial Narrow',sans-serif; letter-spacing: .1px; }
+.voice-player-heading p { font-size: 11px; line-height: 1.8; margin-top: 5px; }
+.voice-engine-tag { margin-left: auto; font: 700 8px ui-monospace,monospace; background: #f7a2b4; padding: 5px; border: 1px solid var(--vibe-ink); white-space: nowrap; }
+.voice-player-display { display: flex; align-items: center; gap: 17px; background: #171713; color: #d6f760; padding: 20px 17px; min-height: 98px; }
+.voice-bars { display: flex; flex: 1; min-width: 0; align-items: center; justify-content: space-around; gap: 4px; height: 48px; }
+.voice-bars span { width: 4px; max-width: 5px; flex: 1; height: 7px; background: #d6f760; }
+.is-speaking .voice-bars span { height: var(--bar-height); animation: voice-pulse .7s var(--bar-delay) ease-in-out infinite alternate; }
+.voice-display-label { font: 700 8px ui-monospace,monospace; letter-spacing: .5px; writing-mode: vertical-rl; }
+.voice-settings { display: grid; grid-template-columns: minmax(0,1fr) 90px; gap: 14px; }
+.voice-settings label { display: flex; flex-direction: column; gap: 9px; font: 700 10px ui-monospace,monospace; letter-spacing: .7px; min-width: 0; }
+.voice-settings select { width: 100%; min-width: 0; height: 42px; border: 1.5px solid var(--vibe-ink); border-radius: 0; padding: 7px; background: #fff; color: var(--vibe-ink); font: 12px Inter,sans-serif; text-overflow: ellipsis; }
+.voice-transport { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.voice-transport button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 11px 15px; min-height: 43px; background: var(--vibe-paper); border: 1.5px solid var(--vibe-ink); border-radius: 0; box-shadow: 2px 2px 0 var(--vibe-ink); color: var(--vibe-ink); font-size: 12px; font-weight: 700; }
+.voice-transport .voice-play { background: var(--vibe-lime); }
+.voice-transport button:hover:not(:disabled) { background: #e8fc9b; }
+.voice-transport button:disabled { color: #66665d; background: #e9e9df; border-color: #96968a; box-shadow: none; }
+.voice-transport>span { width: 100%; color: #626258; font: 10px/1.7 ui-monospace,monospace; }
+.voice-player .voice-privacy { font-size: 10px; line-height: 1.85; color: #626258; margin-top: auto; }
+.voice-player .voice-feedback { color: #8b2335; border: 1px solid #b24d5d; padding: 12px; background: #fff0f1; font-size: 12px; line-height: 1.8; }
+.voice-player .voice-notice { font-size: 11px; color: #714015; padding: 12px; background: #fff0d4; border: 1px solid #9f6e3b; line-height: 1.8; }
+.output-panel .voice-player { margin: 0 19px 23px; padding: 18px; box-shadow: 3px 3px 0 var(--vibe-ink); }
+.output-panel .voice-engine-tag { display: none; }
+.landing-voice { border-bottom: 2px solid var(--lp-ink); background: #edf5ce; scroll-margin-top: 20px; }
+.landing-voice-heading { display: flex; justify-content: space-between; align-items: flex-end; gap: 30px; margin-bottom: 32px; }
+.landing-voice-heading h2>span { color: #6850a4; }
+.landing-voice-heading>p { max-width: 360px; font-size: 14px; color: #54534c; line-height: 1.85; }
+@keyframes voice-pulse { from { transform: scaleY(.3); } to { transform: scaleY(1); } }
+@media(max-width:1000px) { .voice-composer { grid-template-columns: 1fr; } .landing-voice-heading { flex-direction: column; align-items: flex-start; gap: 20px; } .landing-voice-heading>p { max-width: 550px; } }
+@media(max-width:760px) { .voice-input,.voice-player { padding: 20px; } .voice-input textarea,.voice-settings select { font-size: 16px; } .voice-input-heading { flex-wrap: wrap; gap: 10px; } .voice-engine-tag { display: none; } .voice-player-heading h3,.app-shell .voice-player-heading h3 { font-size: 23px; } .output-panel .voice-player { margin-inline: 13px; padding: 15px; } }
+@media(prefers-reduced-motion:reduce) { .is-speaking .voice-bars span { animation: none; height: 18px; } }

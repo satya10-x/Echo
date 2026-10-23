@@ -4,6 +4,7 @@ import { ArrowDown, ArrowRight, ArrowUpRight, Check, ChevronDown, Layers3, Menu,
 import { Brand } from '../components/AppHeader';
 import { personas } from '../personas';
 import PenPlayground from '../components/PenPlayground';
+import VoiceComposer from '../components/VoiceComposer';
 
 const examples = {
   executive: 'Please send your feedback on the proposal by Thursday so we can plan the next step.',
@@ -53,6 +54,7 @@ export default function Landing() {
       </section>
       <div className="lp-manifesto"><span>LESS SECOND-GUESSING.</span><Sparkles /><span>MORE SAYING WHAT YOU MEAN.</span><Sparkles /><span>THAT’S THE SHIFT.</span></div>
       <PenPlayground />
+      <section className="landing-voice lp-section" id="voice-demo" aria-labelledby="voice-demo-title"><div className="landing-voice-heading"><div><span className="lp-section-index">YOUR MESSAGE. OUT LOUD.</span><h2 id="voice-demo-title">LOOKS GOOD?<br /><span>HEAR IT FIRST.</span></h2></div><p>A message can read one way and sound another. Pick an available voice and give your words a listen.</p></div><VoiceComposer /></section>
       <section className="lp-process lp-section" id="how-it-works" aria-labelledby="lp-process-title">
         <div><span className="lp-section-index">01 / FROM ROUGH TO READY</span><h2 id="lp-process-title">THREE MOVES.<br /><span>YOUR WORDS.</span></h2><p className="lp-section-intro">You bring the thought. VibeShift helps with the delivery. The final call stays yours.</p><Link to="/studio" className="lp-text-link">Let’s write something <ArrowRight size={17} /></Link></div>
         <ol className="lp-steps">{[
