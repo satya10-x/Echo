@@ -1,13 +1,13 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Clock3, Copy, Info, RotateCcw, ShieldCheck, Sparkles, Undo2 } from 'lucide-react';
 import { countWords } from '../hooks/useDraftWorkspace';
 import { EmptyState, LoadingState } from './FeedbackState';
 
-// A real result will supply { text, originalText }; no sample output is generated.
-export default function RewriteOutput({ result = null, status = 'idle', error = '', onRegenerate, onRestore }) {
+export default function RewriteOutput({ result = null, status = 'idle', error = '', personaName, stale = false, onRegenerate, onRestore }) {
   const [copyStatus, setCopyStatus] = useState('');
   const hasOutput = Boolean(result?.text);
   const busy = status === 'loading';
+  useEffect(() => { setCopyStatus(''); }, [result]);
   async function copy() {
     try {
       await navigator.clipboard.writeText(result.text);
@@ -17,12 +17,15 @@ export default function RewriteOutput({ result = null, status = 'idle', error = 
     }
   }
   return <section className="editor-panel output-panel" aria-labelledby="output-title" aria-busy={busy}>
-    <div className="panel-heading"><h2 id="output-title"><Sparkles size={17} /> Rewritten message</h2><span className="small-badge">{busy ? 'WORKING' : hasOutput ? 'OUTPUT' : 'READY WHEN YOU ARE'}</span></div>
-    {busy ? <LoadingState /> : status === 'error' ? <div className="output-error" role="alert"><Info size={24} /><h3>We couldn’t complete that rewrite.</h3><p>{error || 'Your original draft is still here. Please try again when the connection is available.'}</p></div> : hasOutput ? <div className="rewritten-text" tabIndex={0}>{result.text}</div> : <EmptyState title="The right words are worth a little care."><p>Your rewritten message will appear here. Start with a draft and choose how you want it to land.</p><span className="coming-pill">AI integration coming next</span></EmptyState>}
+    <div className="panel-heading"><h2 id="output-title"><Sparkles size={17} /> Rewritten message</h2><span className="small-badge" role="status">{busy ? 'REWRITING' : status === 'error' ? 'REQUEST FAILED' : hasOutput ? 'AI REWRITE' : 'READY WHEN YOU ARE'}</span></div>
+    {status === 'error' && <div className="rewrite-error" role="alert"><Info size={18} /><div><strong>We couldn’t complete that rewrite.</strong><p>{error}</p>{hasOutput && <p>Your previous result is retained below.</p>}</div></div>}
+    {busy ? <LoadingState /> : hasOutput ? <><div className="result-context"><span>{personaName} · {result.tone}</span><span>{result.metadata?.provider}{result.metadata?.fallbackUsed ? ' · fallback used' : ''}</span></div>{stale && <p className="result-stale">The draft or settings have changed. This result and comparison use the original source from the last completed rewrite.</p>}<div className="rewritten-text" tabIndex={0}>{result.text}</div></> : <EmptyState title="The right words are worth a little care."><p>Your rewritten message will appear here. Start with a draft and choose how you want it to land.</p><span className="coming-pill">Ready for your next message</span></EmptyState>}
     <div className="output-word-count">{hasOutput ? `${countWords(result.text)} words · ${result.text.length.toLocaleString()} characters` : 'No rewritten output yet'}</div>
-    <div className="output-actions"><button className="button secondary" disabled={!hasOutput || busy || !onRegenerate} onClick={onRegenerate} title="Regeneration requires the upcoming AI integration"><RotateCcw size={14} /> Regenerate</button><button className="button secondary" disabled={!hasOutput || busy || !result.originalText || !onRestore} onClick={() => onRestore(result.originalText)} title="Restore the source draft used for this rewrite"><Undo2 size={14} /> Restore original</button><button className="button secondary" disabled={!hasOutput || busy} onClick={copy}><Copy size={14} /> Copy</button></div>
+    <div className="output-actions"><button className="button secondary" disabled={!hasOutput || busy || !onRegenerate} onClick={onRegenerate} title="Generate a fresh version of the same original draft with current settings"><RotateCcw size={14} /> Regenerate</button><button className="button secondary" disabled={!hasOutput || busy || !result.originalText || !onRestore} onClick={() => onRestore(result.originalText)} title="Restore the source draft used for this rewrite"><Undo2 size={14} /> Restore original</button><button className="button secondary" disabled={!hasOutput || busy} onClick={copy}><Copy size={14} /> Copy</button></div>
     <p className="copy-status" role="status">{copyStatus}</p>
-    {!hasOutput && <p className="output-availability">Copy and restore become available when a real rewrite exists.</p>}
-    <div className="output-insights"><div><span className="insight-icon"><Info size={17} /></span><div><h3>What changed and why?</h3><p>Explanations will appear alongside real rewrites.</p></div><span className="small-badge">NEXT</span></div><div><span className="insight-icon"><ShieldCheck size={17} /></span><div><h3>Your meaning, protected</h3><p>Fidelity and commitment checks are not connected yet.</p></div><Clock3 size={15} className="insight-placeholder" aria-label="Checks coming later" /></div></div>
+    {!hasOutput && <p className="output-availability">Copy, regenerate and restore become available after a successful rewrite.</p>}
+    <div className="output-insights"><div><span className="insight-icon"><Info size={17} /></span><div><h3>What changed and why?</h3>{hasOutput ? <><p>{result.summary}</p><ul className="change-reasons">{result.changeReasons?.map((reason, index) => <li key={index}><strong>{reason.category}</strong> — {reason.explanation}</li>)}</ul><p className="explanation-note">AI explanation · Not an independent fidelity check</p></> : <p>Explanations will appear alongside real rewrites.</p>}</div></div>
+    {result?.warnings?.length > 0 && <div className="model-warnings"><span className="insight-icon"><Info size={17} /></span><div><h3>Worth reviewing</h3><ul>{result.warnings.map((warning, index) => <li key={index}>{warning}</li>)}</ul><p>AI suggestions, not verified findings or legal review.</p></div></div>}
+    <div><span className="insight-icon"><ShieldCheck size={17} /></span><div><h3>Fidelity & commitment checks</h3><p>Independent checks are coming in a later phase. Always review important facts and commitments.</p></div><Clock3 size={15} className="insight-placeholder" aria-label="Checks coming later" /></div></div>
   </section>;
 }
