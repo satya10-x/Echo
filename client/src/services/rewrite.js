@@ -12,7 +12,7 @@ export async function requestRewrite(settings, refinement, signal) {
   const { data } = await api.post('/api/rewrite', createRewritePayload(settings, refinement), {
     signal, timeout: 185000, // Bounded server generation, evaluation and repair budget (maximum 180s).
   });
-  if (typeof data?.rewrittenText !== 'string' || !data.rewrittenText.trim()) throw new Error('The server returned an incomplete rewrite. Please try again.');
+  if (typeof data?.rewrittenText !== 'string' || !data.rewrittenText.trim()) throw Object.assign(new Error('The API returned an invalid rewrite response. Check the backend URL and deployed version.'), { code: 'INVALID_API_RESPONSE' });
   return data;
 }
 

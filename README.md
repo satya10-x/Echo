@@ -29,7 +29,17 @@ Start a local MongoDB instance or set `MONGODB_URI` in `server/.env` to your Mon
 
 `server/.env.example` contains backend settings and provider configuration. Use `CLIENT_ORIGINS` for a comma-separated browser origin allowlist; `CLIENT_URL` is the fallback. `MONGODB_URI` is read only by the server. Keep provider secrets there and never prefix them with `VITE_`.
 
-The frontend's optional `VITE_API_BASE_URL` points to an API origin. In development, an empty value uses Vite's `/api` proxy at port 5000. If changing the backend port, also change the proxy target in `client/vite.config.js`. For production, serve `client/dist` with SPA fallback to `index.html` and proxy `/api` to Express, or set `VITE_API_BASE_URL` at build time and allow the deployed frontend origin in `CLIENT_ORIGINS`. Express serves the API only.
+The frontend's `VITE_API_BASE_URL` points to an API origin. If unset, production builds default to `https://echo-51n2.onrender.com`; development uses the Vite proxy. In development, an empty value uses Vite's `/api` proxy at port 5000. If changing the backend port, also change the proxy target in `client/vite.config.js`. For production, serve `client/dist` with SPA fallback to `index.html` and proxy `/api` to Express, or set `VITE_API_BASE_URL` at build time and allow the deployed frontend origin in `CLIENT_ORIGINS`. Express serves the API only.
+
+## Vercel → Render connection
+
+Set `VITE_API_BASE_URL=https://echo-51n2.onrender.com` in Vercel for **Production and Preview**, then redeploy the frontend. Vite embeds this variable during the build. The base URL must not include `/api`: the Axios service posts to `/api/rewrite`, producing `https://echo-51n2.onrender.com/api/rewrite`.
+
+On Render set `CLIENT_ORIGINS=https://echo-git-main-satyanarayan45x-6966.vercel.app` and `CLIENT_URL=https://echo-git-main-satyanarayan45x-6966.vercel.app`. Add any additional frontend domains as explicit comma-separated entries in `CLIENT_ORIGINS`. `CLIENT_ORIGINS` takes precedence over `CLIENT_URL`. Do not use a wildcard or include a URL path/trailing slash. Keep existing database and AI secrets on Render.
+
+Render must deploy this repository's **current main branch**, not the foundation commit. With repository root as Root Directory, use Build Command `npm ci` and Start Command `npm start` (which runs `server/src/index.js`). For Vercel with repository root, use Build Command `npm run build` and Output Directory `client/dist`; a project rooted at `client` uses `npm run build` and `dist` instead.
+
+Verification without spending AI tokens: `GET /api` must advertise `/api/rewrite`; `POST /api/rewrite` with `{}` must return **400**, not **404**. A preflight `OPTIONS /api/rewrite` from the exact Vercel origin must return **204** and `Access-Control-Allow-Origin` matching that origin. A healthy database alone does not establish that rewriting routes are deployed. The Vite development proxy is not deployed to Vercel.
 
 ## AI configuration
 

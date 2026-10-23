@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { requestRewrite, requestAnalysis } from '../services/rewrite';
+import { apiErrorMessage } from '../services/api';
 
 export default function useRewrite() {
   const [result, setResult] = useState(null);
@@ -24,11 +25,7 @@ export default function useRewrite() {
       await operation(controller);
     } catch (failure) {
       if (active.current !== controller || controller.signal.aborted) return;
-      const serverMessage = failure.response?.data?.error;
-      setError(typeof serverMessage === 'string' ? serverMessage : failure.code === 'ECONNABORTED'
-        ? 'The request timed out. Your previous text is safe; try again.'
-        : failure.response ? 'The service could not complete this request. Please try again.'
-        : 'Could not reach the service. Make sure the server is running and try again.');
+      setError(apiErrorMessage(failure));
       setStatus('error');
     } finally {
       if (active.current === controller) active.current = null;
