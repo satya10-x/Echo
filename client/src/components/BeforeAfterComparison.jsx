@@ -1,0 +1,7 @@
+import { Columns2 } from 'lucide-react';
+// A future diff engine can render typed segments via renderText(text, side).
+// Plain text is always the fallback; no differences are inferred here.
+export default function BeforeAfterComparison({ originalText = '', rewrittenText = '', renderText }) {
+  const available = Boolean(originalText && rewrittenText);
+  return <section className="comparison-section" aria-labelledby="comparison-title"><div className="section-heading"><div><h2 id="comparison-title"><Columns2 size={17} /> Before & after</h2><p>Your original intent, with a new delivery.</p></div><span className="small-badge">{available ? 'COMPARISON' : 'AWAITING REWRITE'}</span></div>{available ? <div className="comparison-grid">{[['Original', originalText, 'original'], ['Rewritten', rewrittenText, 'rewritten']].map(([label, text, side]) => <article key={side}><h3>{label}</h3><div className="comparison-text">{renderText ? renderText(text, side) : text}</div></article>)}</div> : <div className="comparison-empty"><Columns2 size={22} /><div><h3>A clearer view of the shift</h3><p>Original and rewritten text will appear side by side after a real rewrite.</p></div></div>}<div className="diff-legend" aria-label="Future text highlighting"><span className="added">Added</span><span className="removed">Removed</span><span className="modified">Modified</span><p>Highlighting will be connected with the diff engine.</p></div></section>;
+}
